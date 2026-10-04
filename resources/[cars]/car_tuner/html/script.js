@@ -394,7 +394,7 @@
             id: 'engine',
             label: 'เครื่องยนต์ & เกียร์',
             fields: [
-                { key: 'fDriveBiasFront', type: 'float', min: 0.0, max: 20.0, step: 0.01 },
+                { key: 'fDriveBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
                 { key: 'nInitialDriveGears', type: 'int', min: 1, max: 8, step: 1 },
                 { key: 'fInitialDriveForce', type: 'float', min: 0.01, max: 2.0, step: 0.01 },
                 { key: 'fDriveInertia', type: 'float', min: 0.01, max: 3.0, step: 0.01 },
@@ -407,7 +407,7 @@
             id: 'brakes',
             label: 'เบรก & การเลี้ยว',
             fields: [
-                { key: 'fBrakeForce', type: 'float', min: 0.01, max: 3.0, step: 0.01 },
+                { key: 'fBrakeForce', type: 'float', min: 0.01, max: 20.0, step: 0.01 },
                 { key: 'fBrakeBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
                 { key: 'fHandBrakeForce', type: 'float', min: 0.01, max: 5.0, step: 0.01 },
                 { key: 'fSteeringLock', type: 'float', min: 10.0, max: 80.0, step: 0.5 }
