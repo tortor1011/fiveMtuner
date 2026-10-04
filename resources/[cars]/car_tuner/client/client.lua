@@ -77,11 +77,15 @@ local SUB_FLOAT_FIELDS = {
 
 -- ── Helpers ──────────────────────────────────────────────────────────────────
 
---- Sends a chat notification to the local player.
+--- Sends a notification (minimap ticker + chat).
 --- @param msg string
 local function Notify(msg)
+    BeginTextCommandThefeedPost("STRING")
+    AddTextComponentSubstringPlayerName("~b~[CarTuner]~s~ " .. msg)
+    EndTextCommandThefeedPostTicker(false, true)
+
     TriggerEvent('chat:addMessage', {
-        color     = { 255, 180, 0 },
+        color     = { 56, 189, 248 },
         multiline = true,
         args      = { '[CarTuner]', msg }
     })
@@ -96,25 +100,36 @@ local function GetHandlingSnapshot(veh)
 
     -- CHandlingData floats
     for _, f in ipairs(FLOAT_FIELDS) do
-        snap[f] = GetVehicleHandlingFloat(veh, 'CHandlingData', f)
+        local ok, val = pcall(GetVehicleHandlingFloat, veh, 'CHandlingData', f)
+        if ok and val ~= nil then
+            snap[f] = val
+        end
     end
 
     -- CHandlingData integers
     for _, f in ipairs(INT_FIELDS) do
-        snap[f] = GetVehicleHandlingInt(veh, 'CHandlingData', f)
+        local ok, val = pcall(GetVehicleHandlingInt, veh, 'CHandlingData', f)
+        if ok and val ~= nil then
+            snap[f] = val
+        end
     end
 
     -- CHandlingData vectors → flatten to x/y/z component keys
     for _, f in ipairs(VECTOR_FIELDS) do
-        local v = GetVehicleHandlingVector(veh, 'CHandlingData', f)
-        snap[f .. '.x'] = v.x
-        snap[f .. '.y'] = v.y
-        snap[f .. '.z'] = v.z
+        local ok, v = pcall(GetVehicleHandlingVector, veh, 'CHandlingData', f)
+        if ok and v ~= nil then
+            snap[f .. '.x'] = v.x
+            snap[f .. '.y'] = v.y
+            snap[f .. '.z'] = v.z
+        end
     end
 
     -- CCarHandlingData floats (sub-handler)
     for _, f in ipairs(SUB_FLOAT_FIELDS) do
-        snap[f] = GetVehicleHandlingFloat(veh, 'CCarHandlingData', f)
+        local ok, val = pcall(GetVehicleHandlingFloat, veh, 'CCarHandlingData', f)
+        if ok and val ~= nil then
+            snap[f] = val
+        end
     end
 
     return snap
@@ -131,8 +146,10 @@ local function OpenTunerUI(veh)
     local snapshot = GetHandlingSnapshot(veh)
 
     SendNUIMessage({
-        action = 'openUI',
-        values = snapshot
+        action   = 'open',
+        handling = snapshot,
+        -- Backward-compatibility aliases
+        values   = snapshot
     })
 end
 
@@ -142,13 +159,13 @@ RegisterCommand('tune', function()
     local ped = PlayerPedId()
 
     if not IsPedInAnyVehicle(ped, false) then
-        Notify('You must be inside a vehicle to use the tuner.')
+        Notify('คุณต้องอยู่บนยานพาหนะเพื่อใช้งานระบบจูน (You must be inside a vehicle)')
         return
     end
 
     local veh = GetVehiclePedIsIn(ped, false)
     if veh == 0 then
-        Notify('Could not detect your current vehicle.')
+        Notify('ไม่พบยานพาหนะที่คุณกำลังขับขี่ (Vehicle not found)')
         return
     end
 

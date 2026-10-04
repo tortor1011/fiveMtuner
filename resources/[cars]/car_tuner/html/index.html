@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vehicle Handling Editor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -28,7 +28,7 @@
                     </div>
                     <div class="header-text">
                         <h1>Handling Editor</h1>
-                        <span class="header-sub">Real-time Vehicle Tuning</span>
+                        <span class="header-sub">เครื่องมือปรับแต่ง Handling ยานพาหนะ (Real-time)</span>
                     </div>
                 </div>
                 <span class="live-badge">● LIVE</span>
@@ -49,10 +49,33 @@
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
-                    <span id="btn-copy-label">Copy Complete XML</span>
+                    <span id="btn-copy-label">คัดลอกไฟล์ XML ทั้งหมด</span>
                 </button>
-                <button id="btn-close" class="btn btn-ghost">Close</button>
+                <button id="btn-close" class="btn btn-ghost">ปิดหน้าต่าง</button>
             </footer>
+        </div>
+    </div>
+
+    <!-- Floating Cyber Glassmorphism Tooltip -->
+    <div id="tuner-tooltip" class="tuner-tooltip hidden">
+        <div class="tooltip-header">
+            <span class="tooltip-title" id="tooltip-title"></span>
+            <code class="tooltip-tag" id="tooltip-tag"></code>
+        </div>
+        <div class="tooltip-desc" id="tooltip-desc"></div>
+        <div class="tooltip-effects" id="tooltip-effects">
+            <div class="tooltip-effect effect-up" id="tooltip-up-row">
+                <span class="effect-icon">▲</span>
+                <div class="effect-text">
+                    <strong>ปรับเพิ่ม:</strong> <span id="tooltip-up-text"></span>
+                </div>
+            </div>
+            <div class="tooltip-effect effect-down" id="tooltip-down-row">
+                <span class="effect-icon">▼</span>
+                <div class="effect-text">
+                    <strong>ปรับลด:</strong> <span id="tooltip-down-text"></span>
+                </div>
+            </div>
         </div>
     </div>
 

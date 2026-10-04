@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Car Tuner v2 — Vehicle Handling Editor Stylesheet
    Modern Cyber Glassmorphism Theme (Dark translucent backdrop, electric cyan accents,
-   horizontal scrollable tab bar, and 2-column control grid)
+   horizontal scrollable tab bar, 2-column control grid, and rich Thai tooltips)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Reset ────────────────────────────────────────────────────────────────── */
@@ -47,7 +47,7 @@
     /* Text */
     --text-primary:      #f8fafc;
     --text-secondary:    #cbd5e1;
-    --text-muted:        #64748b;
+    --text-muted:        #94a3b8;
     --text-tag:          #38bdf8;
 
     /* Accents (Electric Cyan & Violet Highlights) */
@@ -67,7 +67,7 @@
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Prompt', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg-page);
     color: var(--text-primary);
     overflow: hidden;
@@ -172,7 +172,7 @@ body {
 .header-sub {
     font-size: 11.5px;
     color: var(--text-muted);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
 }
 
 .live-badge {
@@ -327,7 +327,7 @@ body {
 .section-divider span {
     font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-muted);
     white-space: nowrap;
@@ -340,7 +340,7 @@ body {
     background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
-/* ── Field Cards ──────────────────────────────────────────────────────────── */
+/* ── Field Cards ──────────────────────────────────────────────────── */
 
 .field-card {
     background: var(--bg-card);
@@ -369,11 +369,19 @@ body {
 /* Field Header: Label + Tag */
 .field-header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: 8px;
     margin-bottom: 8px;
     min-width: 0;
+}
+
+.field-label-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .field-label {
@@ -383,6 +391,32 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.field-info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.30);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: help;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.field-info-btn:hover {
+    background: var(--accent);
+    color: #0f172a;
+    transform: scale(1.18);
+    box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .field-tag {
@@ -412,13 +446,16 @@ body {
     display: flex;
 }
 
-/* Hint Text Below Control */
+/* Hint Text Below Control (Displays description) */
 .field-hint {
     font-size: 10px;
     color: var(--text-muted);
     margin-top: 6px;
     letter-spacing: 0.01em;
-    line-height: 1.3;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Range Slider */
@@ -603,6 +640,111 @@ body {
     background: rgba(51, 65, 85, 0.5);
     color: var(--text-primary);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Floating Cyber Glassmorphism Tooltip ─────────────────────────────────── */
+
+.tuner-tooltip {
+    position: fixed;
+    z-index: 10001;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.75),
+        0 0 25px rgba(56, 189, 248, 0.15);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.tuner-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tooltip-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.tooltip-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.tooltip-desc {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+}
+
+.tooltip-effects {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tooltip-effect {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 6px 9px;
+    border-radius: var(--radius-sm);
+}
+
+.tooltip-effect .effect-icon {
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.tooltip-effect.effect-up {
+    background: rgba(52, 211, 153, 0.10);
+    border: 1px solid rgba(52, 211, 153, 0.22);
+    color: #a7f3d0;
+}
+
+.tooltip-effect.effect-up .effect-icon {
+    color: #34d399;
+}
+
+.tooltip-effect.effect-down {
+    background: rgba(251, 191, 36, 0.10);
+    border: 1px solid rgba(251, 191, 36, 0.22);
+    color: #fde68a;
+}
+
+.tooltip-effect.effect-down .effect-icon {
+    color: #fbbf24;
 }
 
 /* ── Toast Notification ───────────────────────────────────────────────────── */
