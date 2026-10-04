@@ -258,9 +258,7 @@ RegisterNUICallback('saveHandling', function(tuningData, cb)
     cb('ok')
 end)
 
--- ── State Bag & Network Sync ─────────────────────────────────────────────────
 
--- When customTuning state bag is set on any vehicle, apply handling physics
 AddStateBagChangeHandler('customTuning', nil, function(bagName, key, value, _unused, replicated)
     if not value then return end
     local entity = GetEntityFromStateBagName(bagName)
@@ -269,7 +267,6 @@ AddStateBagChangeHandler('customTuning', nil, function(bagName, key, value, _unu
     end
 end)
 
--- Server broadcast receiver
 RegisterNetEvent('car_tuner:clientApplyTuning', function(netId, tuningData)
     if NetworkDoesNetworkIdExist(netId) then
         local veh = NetToVeh(netId)
@@ -278,9 +275,6 @@ RegisterNetEvent('car_tuner:clientApplyTuning', function(netId, tuningData)
         end
     end
 end)
-
--- ── NUI Callback: closeUI ────────────────────────────────────────────────────
--- Closes NUI focus. Unsaved draft changes remain discarded without altering vehicle physics.
 
 RegisterNUICallback('closeUI', function(_, cb)
     SetNuiFocus(false, false)
