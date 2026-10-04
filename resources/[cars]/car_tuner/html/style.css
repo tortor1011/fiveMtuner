@@ -1,0 +1,637 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Car Tuner v2 — Vehicle Handling Editor Stylesheet
+   Modern Cyber Glassmorphism Theme (Dark translucent backdrop, electric cyan accents,
+   horizontal scrollable tab bar, and 2-column control grid)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Reset ────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+
+:root {
+    /* Dimensions & Positioning */
+    --panel-w:           720px;
+    --panel-h:           78vh;
+    --radius-xl:         18px;
+    --radius-lg:         12px;
+    --radius-md:         8px;
+    --radius-sm:         6px;
+
+    /* Surfaces (Cyber Glassmorphism) */
+    --bg-page:           transparent;
+    --bg-panel:          rgba(15, 23, 42, 0.82);
+    --bg-header:         rgba(15, 23, 42, 0.55);
+    --bg-tab-bar:        rgba(10, 15, 29, 0.50);
+    --bg-tab:            rgba(30, 41, 59, 0.40);
+    --bg-tab-hover:      rgba(51, 65, 85, 0.50);
+    --bg-tab-active:     rgba(56, 189, 248, 0.14);
+    --bg-card:           rgba(30, 41, 59, 0.45);
+    --bg-card-hover:     rgba(30, 41, 59, 0.75);
+    --bg-input:          rgba(15, 23, 42, 0.85);
+    --bg-input-focus:    rgba(15, 23, 42, 0.95);
+    --bg-action-bar:     rgba(10, 15, 29, 0.75);
+
+    /* Borders */
+    --border-panel:      rgba(255, 255, 255, 0.10);
+    --border-subtle:     rgba(255, 255, 255, 0.07);
+    --border-card:       rgba(255, 255, 255, 0.08);
+    --border-input:      rgba(255, 255, 255, 0.12);
+    --border-accent:     rgba(56, 189, 248, 0.40);
+
+    /* Text */
+    --text-primary:      #f8fafc;
+    --text-secondary:    #cbd5e1;
+    --text-muted:        #64748b;
+    --text-tag:          #38bdf8;
+
+    /* Accents (Electric Cyan & Violet Highlights) */
+    --accent:            #38bdf8;
+    --accent-hover:      #0ea5e9;
+    --accent-violet:     #818cf8;
+    --accent-glow:       rgba(56, 189, 248, 0.35);
+    --accent-glow-strong:rgba(56, 189, 248, 0.60);
+
+    /* Status */
+    --success:           #34d399;
+    --success-bg:        rgba(52, 211, 153, 0.12);
+    --success-glow:      rgba(52, 211, 153, 0.35);
+
+    /* Motion */
+    --ease:              cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Container (Center-right screen positioning with 24px padding) ────────── */
+
+.tuner-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 24px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s var(--ease);
+}
+
+.tuner-container.hidden {
+    opacity: 0;
+    pointer-events: none !important;
+}
+
+.tuner-container:not(.hidden) {
+    pointer-events: auto;
+}
+
+/* ── Main Panel (Modern Cyber Glassmorphism) ──────────────────────────────── */
+
+.tuner-panel {
+    width: var(--panel-w);
+    min-width: 680px;
+    max-width: min(750px, calc(100vw - 48px));
+    height: var(--panel-h);
+    min-height: 580px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-panel);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.7),
+        0 0 80px rgba(56, 189, 248, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    transform: translateX(0) scale(1);
+    transition: transform 0.4s var(--ease), opacity 0.4s var(--ease);
+}
+
+.tuner-container.hidden .tuner-panel {
+    transform: translateX(50px) scale(0.97);
+    opacity: 0;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+.tuner-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+    flex-shrink: 0;
+}
+
+.header-text h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.header-sub {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+}
+
+.live-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--success);
+    background: var(--success-bg);
+    border: 1px solid rgba(52, 211, 153, 0.25);
+    padding: 4px 12px;
+    border-radius: 20px;
+    box-shadow: 0 0 12px var(--success-glow);
+    animation: pulse-badge 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+}
+
+/* ── Horizontal Category / Tab Bar ────────────────────────────────────────── */
+
+.tab-nav {
+    display: flex;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--bg-tab-bar);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.35) rgba(15, 23, 42, 0.4);
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tab-nav::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tab-nav::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.tab-nav::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.35);
+    border-radius: 999px;
+}
+
+.tab-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.6);
+}
+
+.tab-btn {
+    position: relative;
+    flex-shrink: 0; /* Ensures tabs never squish together */
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-tab);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s var(--ease);
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-tab-hover);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    background: var(--bg-tab-active);
+    border-color: var(--border-accent);
+    box-shadow:
+        0 0 16px rgba(56, 189, 248, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--accent);
+}
+
+/* ── Tab Content Area ─────────────────────────────────────────────────────── */
+
+.tab-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 18px 20px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+}
+
+.tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3);
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 189, 248, 0.5);
+}
+
+/* ── 2-Column Grid Layout for Tab Panes ────────────────────────────────────── */
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-content: start;
+}
+
+/* ── Section Divider (Spans across both columns) ─────────────────────────── */
+
+.section-divider {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 4px;
+    padding: 0;
+}
+
+.section-divider span {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+/* ── Field Cards ──────────────────────────────────────────────────────────── */
+
+.field-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-md);
+    padding: 12px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0; /* Prevents flex/grid overflow */
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.field-card:hover {
+    background: var(--bg-card-hover);
+    border-color: rgba(56, 189, 248, 0.35);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.3),
+        0 0 16px rgba(56, 189, 248, 0.08);
+}
+
+/* Field Header: Label + Tag */
+.field-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    min-width: 0;
+}
+
+.field-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.field-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    color: var(--text-tag);
+    background: rgba(56, 189, 248, 0.10);
+    border: 1px solid rgba(56, 189, 248, 0.18);
+    padding: 1.5px 6px;
+    border-radius: 4px;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Control Row: Styled Slider + Editable Numeric Input ──────────────────── */
+
+.field-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.field-control--text {
+    display: flex;
+}
+
+/* Hint Text Below Control */
+.field-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+}
+
+/* Range Slider */
+.field-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    min-width: 0;
+    height: 6px;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.field-slider:hover {
+    background: rgba(51, 65, 85, 0.85);
+    border-color: rgba(56, 189, 248, 0.2);
+}
+
+.field-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0f172a;
+    box-shadow:
+        0 0 10px var(--accent-glow),
+        0 0 20px rgba(56, 189, 248, 0.45);
+    cursor: grab;
+    transition: transform 0.15s var(--ease), box-shadow 0.15s ease;
+}
+
+.field-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+    box-shadow:
+        0 0 14px var(--accent-glow-strong),
+        0 0 24px rgba(56, 189, 248, 0.65);
+}
+
+.field-slider:active::-webkit-slider-thumb {
+    cursor: grabbing;
+    transform: scale(1.1);
+}
+
+.field-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid #0f172a;
+    box-shadow:
+        0 0 10px var(--accent-glow),
+        0 0 20px rgba(56, 189, 248, 0.45);
+    cursor: grab;
+}
+
+/* Synchronized Numeric Input */
+.field-number {
+    width: 72px;
+    flex-shrink: 0;
+    padding: 5px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    text-align: right;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    -moz-appearance: textfield;
+}
+
+.field-number::-webkit-inner-spin-button,
+.field-number::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.field-number:focus {
+    background: var(--bg-input-focus);
+    border-color: var(--accent);
+    box-shadow:
+        0 0 0 2px rgba(56, 189, 248, 0.22),
+        0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+/* Text Input (Flags, Names) */
+.field-text {
+    width: 100%;
+    padding: 7px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.field-text::placeholder {
+    color: var(--text-muted);
+}
+
+.field-text:focus {
+    background: var(--bg-input-focus);
+    border-color: var(--accent);
+    box-shadow:
+        0 0 0 2px rgba(56, 189, 248, 0.22),
+        0 0 10px rgba(56, 189, 248, 0.2);
+}
+
+/* ── Action Bar (Footer) ──────────────────────────────────────────────────── */
+
+.action-bar {
+    display: flex;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-action-bar);
+    flex-shrink: 0;
+}
+
+.btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+    outline: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    color: #0c1222;
+    font-weight: 700;
+    box-shadow:
+        0 2px 14px var(--accent-glow),
+        0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.btn-primary:hover {
+    box-shadow:
+        0 4px 24px var(--accent-glow-strong),
+        0 0 30px rgba(56, 189, 248, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary.copied {
+    background: linear-gradient(135deg, var(--success) 0%, #10b981 100%);
+    color: #0c1222;
+    box-shadow: 0 2px 14px rgba(52, 211, 153, 0.45);
+}
+
+.btn-ghost {
+    background: rgba(30, 41, 59, 0.45);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-card);
+}
+
+.btn-ghost:hover {
+    background: rgba(51, 65, 85, 0.5);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Toast Notification ───────────────────────────────────────────────────── */
+
+.toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-accent);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.55),
+        0 0 24px var(--accent-glow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+    z-index: 10000;
+    white-space: nowrap;
+}
+
+.toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
