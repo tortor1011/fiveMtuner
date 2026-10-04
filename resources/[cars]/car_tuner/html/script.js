@@ -521,6 +521,10 @@
     const btnClose = document.getElementById('btn-close');
     const toastEl = document.getElementById('toast');
 
+    // Vehicle Badge DOM elements
+    const vehBadgeName = document.getElementById('veh-badge-name');
+    const vehBadgePlate = document.getElementById('veh-badge-plate');
+
     // Tooltip DOM elements
     const tooltipEl = document.getElementById('tuner-tooltip');
     const tooltipTitle = document.getElementById('tooltip-title');
@@ -530,6 +534,84 @@
     const tooltipUpTxt = document.getElementById('tooltip-up-text');
     const tooltipDnRow = document.getElementById('tooltip-down-row');
     const tooltipDnTxt = document.getElementById('tooltip-down-text');
+
+    // Keys that can legitimately have 0 as a valid physics value
+    const CAN_BE_ZERO_KEYS = new Set([
+        'fDriveBiasFront',
+        'fSuspensionRaise',
+        'fCamberStiffnesss',
+        'fLowSpeedTractionLossMult',
+        'fAntiRollBarForce',
+        'fSeatOffsetDistX',
+        'fSeatOffsetDistY',
+        'fSeatOffsetDistZ',
+        'fRollCentreHeightFront',
+        'fRollCentreHeightRear',
+        'vecCentreOfMassOffset.x',
+        'vecCentreOfMassOffset.y',
+        'vecCentreOfMassOffset.z'
+    ]);
+
+    // Standard sports-class baseline defaults for Add-on/Mod vehicles
+    const FALLBACK_DEFAULTS = {
+        fMass: 1500.0,
+        fInitialDragCoeff: 10.0,
+        fPercentSubmerged: 85.0,
+        fDriveBiasFront: 0.0,
+        nInitialDriveGears: 6,
+        fInitialDriveForce: 0.32,
+        fDriveInertia: 1.0,
+        fClutchChangeRateScaleUpShift: 2.5,
+        fClutchChangeRateScaleDownShift: 2.5,
+        fInitialDriveMaxFlatVel: 160.0,
+        fBrakeForce: 1.2,
+        fBrakeBiasFront: 0.52,
+        fHandBrakeForce: 0.8,
+        fSteeringLock: 40.0,
+        fTractionCurveMax: 2.3,
+        fTractionCurveMin: 2.1,
+        fTractionCurveLateral: 22.5,
+        fTractionSpringDeltaMax: 0.15,
+        fLowSpeedTractionLossMult: 0.0,
+        fCamberStiffnesss: 0.0,
+        fTractionBiasFront: 0.485,
+        fTractionLossMult: 1.0,
+        fSuspensionForce: 2.4,
+        fSuspensionCompDamp: 1.4,
+        fSuspensionReboundDamp: 1.8,
+        fSuspensionUpperLimit: 0.10,
+        fSuspensionLowerLimit: -0.12,
+        fSuspensionRaise: 0.0,
+        fSuspensionBiasFront: 0.50,
+        fAntiRollBarForce: 0.6,
+        fAntiRollBarBiasFront: 0.52,
+        fRollCentreHeightFront: 0.35,
+        fRollCentreHeightRear: 0.35,
+        fCollisionDamageMult: 0.7,
+        fWeaponDamageMult: 1.0,
+        fDeformationDamageMult: 0.7,
+        fEngineDamageMult: 1.5,
+        fPetrolTankVolume: 65.0,
+        fOilVolume: 5.0,
+        fSeatOffsetDistX: 0.0,
+        fSeatOffsetDistY: 0.0,
+        fSeatOffsetDistZ: 0.0,
+        'vecCentreOfMassOffset.x': 0.0,
+        'vecCentreOfMassOffset.y': 0.0,
+        'vecCentreOfMassOffset.z': 0.0,
+        'vecInertiaMultiplier.x': 1.2,
+        'vecInertiaMultiplier.y': 1.2,
+        'vecInertiaMultiplier.z': 1.4,
+        nMonetaryValue: 50000,
+        fBackEndPopUpCarImpulseMult: 0.075,
+        fBackEndPopUpBuildingImpulseMult: 0.03,
+        fBackEndPopUpMaxDeltaSpeed: 0.25,
+        handlingName: 'ADDON_CAR',
+        AIHandling: 'AVERAGE',
+        strModelFlags: '0',
+        strHandlingFlags: '0',
+        strDamageFlags: '0'
+    };
 
     // ─────────────────────────────────────────────────────────────────────────
     //  HELPERS
@@ -784,31 +866,71 @@
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
+     * Resolves a clean, safe value for a field (preventing 0.00 / NaN glitches on mod cars).
+     * @param {string} key
+     * @param {any} val
+     * @param {object} fieldDef
+     * @returns {number|string}
+     */
+    function resolveSafeValue(key, val, fieldDef) {
+        if (fieldDef && fieldDef.type === 'text') {
+            if (val !== undefined && val !== null && String(val).trim() !== '') {
+                return String(val);
+            }
+            return FALLBACK_DEFAULTS[key] || fieldDef.defaultVal || '';
+        }
+
+        const numVal = parseFloat(val);
+        const isInvalid = val === undefined || val === null || isNaN(numVal);
+        const isBrokenZero = !isInvalid && numVal === 0 && !CAN_BE_ZERO_KEYS.has(key);
+
+        if (isInvalid || isBrokenZero) {
+            if (FALLBACK_DEFAULTS[key] !== undefined) {
+                return FALLBACK_DEFAULTS[key];
+            }
+            if (fieldDef && fieldDef.min !== undefined && fieldDef.max !== undefined) {
+                return roundToStep((fieldDef.min + fieldDef.max) / 2, fieldDef.step || 0.01);
+            }
+            return 0.0;
+        }
+
+        return numVal;
+    }
+
+    /**
      * Applies a snapshot of handling values received from Lua.
      * Initializes both initialState (committed baseline) and draftState.
      * @param {object} handling  Map of handling field keys to numeric/string values.
      */
     function applySnapshot(handling) {
-        if (!handling) return;
+        const raw = handling || {};
 
-        for (const [key, val] of Object.entries(handling)) {
-            initialState[key] = val;
-            draftState[key] = val;
+        // Iterate through all defined fields in all tabs to ensure 100% complete coverage
+        for (const tab of TABS) {
+            for (const f of tab.fields) {
+                if (f.type === 'divider') continue;
 
-            const card = tabContent.querySelector(`.field-card[data-key="${key}"]`);
-            if (!card) continue;
+                const key = f.key;
+                const safeVal = resolveSafeValue(key, raw[key], f);
 
-            const slider = card.querySelector('.field-slider');
-            const num = card.querySelector('.field-number');
-            const text = card.querySelector('.field-text');
+                initialState[key] = safeVal;
+                draftState[key] = safeVal;
 
-            if (slider && num) {
-                const step = parseFloat(slider.step) || 0.01;
-                const rounded = roundToStep(val, step);
-                slider.value = rounded;
-                num.value = rounded;
-            } else if (text) {
-                text.value = val;
+                const card = tabContent.querySelector(`.field-card[data-key="${key}"]`);
+                if (!card) continue;
+
+                const slider = card.querySelector('.field-slider');
+                const num = card.querySelector('.field-number');
+                const text = card.querySelector('.field-text');
+
+                if (slider && num) {
+                    const step = parseFloat(slider.step) || 0.01;
+                    const rounded = roundToStep(safeVal, step);
+                    slider.value = rounded;
+                    num.value = rounded;
+                } else if (text) {
+                    text.value = safeVal;
+                }
             }
         }
     }
@@ -893,10 +1015,27 @@
 
         switch (data.action) {
             case 'open':
-            case 'openUI':
+            case 'openUI': {
+                // Update vehicle badge
+                const vehName = data.vehicleName || data.modelName || 'ADD-ON VEHICLE';
+                const vehPlate = data.plate ? String(data.plate).trim() : '';
+
+                if (vehBadgeName) {
+                    vehBadgeName.textContent = vehName;
+                }
+                if (vehBadgePlate) {
+                    if (vehPlate) {
+                        vehBadgePlate.textContent = vehPlate;
+                        vehBadgePlate.style.display = 'inline-block';
+                    } else {
+                        vehBadgePlate.style.display = 'none';
+                    }
+                }
+
                 applySnapshot(data.handling || data.values);
                 container.classList.remove('hidden');
                 break;
+            }
 
             case 'close':
             case 'closeUI':
