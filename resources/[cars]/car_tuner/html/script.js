@@ -394,37 +394,37 @@
             id: 'engine',
             label: 'เครื่องยนต์ & เกียร์',
             fields: [
-                { key: 'fDriveBiasFront',                 type: 'float', min: 0.0,  max: 1.0,   step: 0.01 },
-                { key: 'nInitialDriveGears',              type: 'int',   min: 1,    max: 8,     step: 1    },
-                { key: 'fInitialDriveForce',              type: 'float', min: 0.01, max: 2.0,   step: 0.01 },
-                { key: 'fDriveInertia',                   type: 'float', min: 0.01, max: 3.0,   step: 0.01 },
-                { key: 'fClutchChangeRateScaleUpShift',   type: 'float', min: 0.1,  max: 10.0,  step: 0.1  },
-                { key: 'fClutchChangeRateScaleDownShift', type: 'float', min: 0.1,  max: 10.0,  step: 0.1  },
-                { key: 'fInitialDriveMaxFlatVel',         type: 'float', min: 10.0, max: 500.0, step: 1.0  }
+                { key: 'fDriveBiasFront', type: 'float', min: 0.0, max: 20.0, step: 0.01 },
+                { key: 'nInitialDriveGears', type: 'int', min: 1, max: 8, step: 1 },
+                { key: 'fInitialDriveForce', type: 'float', min: 0.01, max: 2.0, step: 0.01 },
+                { key: 'fDriveInertia', type: 'float', min: 0.01, max: 3.0, step: 0.01 },
+                { key: 'fClutchChangeRateScaleUpShift', type: 'float', min: 0.1, max: 10.0, step: 0.1 },
+                { key: 'fClutchChangeRateScaleDownShift', type: 'float', min: 0.1, max: 10.0, step: 0.1 },
+                { key: 'fInitialDriveMaxFlatVel', type: 'float', min: 10.0, max: 500.0, step: 1.0 }
             ]
         },
         {
             id: 'brakes',
             label: 'เบรก & การเลี้ยว',
             fields: [
-                { key: 'fBrakeForce',      type: 'float', min: 0.01, max: 3.0,  step: 0.01 },
-                { key: 'fBrakeBiasFront',  type: 'float', min: 0.0,  max: 1.0,  step: 0.01 },
-                { key: 'fHandBrakeForce',  type: 'float', min: 0.01, max: 5.0,  step: 0.01 },
-                { key: 'fSteeringLock',    type: 'float', min: 10.0, max: 80.0, step: 0.5  }
+                { key: 'fBrakeForce', type: 'float', min: 0.01, max: 3.0, step: 0.01 },
+                { key: 'fBrakeBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
+                { key: 'fHandBrakeForce', type: 'float', min: 0.01, max: 5.0, step: 0.01 },
+                { key: 'fSteeringLock', type: 'float', min: 10.0, max: 80.0, step: 0.5 }
             ]
         },
         {
             id: 'traction',
             label: 'การยึดเกาะ & ยาง',
             fields: [
-                { key: 'fTractionCurveMax',           type: 'float', min: 0.5, max: 4.0, step: 0.01 },
-                { key: 'fTractionCurveMin',           type: 'float', min: 0.5, max: 4.0, step: 0.01 },
-                { key: 'fTractionCurveLateral',       type: 'float', min: 10.0, max: 30.0, step: 0.1 },
-                { key: 'fTractionSpringDeltaMax',     type: 'float', min: 0.01, max: 1.0, step: 0.01 },
-                { key: 'fLowSpeedTractionLossMult',   type: 'float', min: 0.0, max: 2.0, step: 0.01 },
-                { key: 'fCamberStiffnesss',           type: 'float', min: -1.0, max: 1.0, step: 0.01 },
-                { key: 'fTractionBiasFront',          type: 'float', min: 0.0, max: 1.0, step: 0.01 },
-                { key: 'fTractionLossMult',           type: 'float', min: 0.0, max: 5.0, step: 0.01 }
+                { key: 'fTractionCurveMax', type: 'float', min: 0.5, max: 4.0, step: 0.01 },
+                { key: 'fTractionCurveMin', type: 'float', min: 0.5, max: 4.0, step: 0.01 },
+                { key: 'fTractionCurveLateral', type: 'float', min: 10.0, max: 30.0, step: 0.1 },
+                { key: 'fTractionSpringDeltaMax', type: 'float', min: 0.01, max: 1.0, step: 0.01 },
+                { key: 'fLowSpeedTractionLossMult', type: 'float', min: 0.0, max: 2.0, step: 0.01 },
+                { key: 'fCamberStiffnesss', type: 'float', min: -1.0, max: 1.0, step: 0.01 },
+                { key: 'fTractionBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
+                { key: 'fTractionLossMult', type: 'float', min: 0.0, max: 5.0, step: 0.01 }
             ]
         },
         {
@@ -432,18 +432,18 @@
             label: 'ช่วงล่าง & สปริง',
             fields: [
                 { type: 'divider', label: 'สปริง & โช้คอัพ (Springs & Dampers)' },
-                { key: 'fSuspensionForce',        type: 'float', min: 0.1,  max: 5.0, step: 0.01 },
-                { key: 'fSuspensionCompDamp',     type: 'float', min: 0.1,  max: 5.0, step: 0.01 },
-                { key: 'fSuspensionReboundDamp',  type: 'float', min: 0.1,  max: 5.0, step: 0.01 },
-                { key: 'fSuspensionUpperLimit',   type: 'float', min: -0.5, max: 0.5, step: 0.01 },
-                { key: 'fSuspensionLowerLimit',   type: 'float', min: -0.5, max: 0.1, step: 0.01 },
-                { key: 'fSuspensionRaise',        type: 'float', min: -0.2, max: 0.5, step: 0.01 },
-                { key: 'fSuspensionBiasFront',    type: 'float', min: 0.0,  max: 1.0, step: 0.01 },
+                { key: 'fSuspensionForce', type: 'float', min: 0.1, max: 5.0, step: 0.01 },
+                { key: 'fSuspensionCompDamp', type: 'float', min: 0.1, max: 5.0, step: 0.01 },
+                { key: 'fSuspensionReboundDamp', type: 'float', min: 0.1, max: 5.0, step: 0.01 },
+                { key: 'fSuspensionUpperLimit', type: 'float', min: -0.5, max: 0.5, step: 0.01 },
+                { key: 'fSuspensionLowerLimit', type: 'float', min: -0.5, max: 0.1, step: 0.01 },
+                { key: 'fSuspensionRaise', type: 'float', min: -0.2, max: 0.5, step: 0.01 },
+                { key: 'fSuspensionBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
                 { type: 'divider', label: 'เหล็กกันโคลง & จุดศูนย์ถ่วงเอียง (Anti-Roll)' },
-                { key: 'fAntiRollBarForce',       type: 'float', min: 0.0,  max: 5.0, step: 0.01 },
-                { key: 'fAntiRollBarBiasFront',   type: 'float', min: 0.0,  max: 1.0, step: 0.01 },
-                { key: 'fRollCentreHeightFront',  type: 'float', min: -0.5, max: 1.0, step: 0.01 },
-                { key: 'fRollCentreHeightRear',   type: 'float', min: -0.5, max: 1.0, step: 0.01 }
+                { key: 'fAntiRollBarForce', type: 'float', min: 0.0, max: 5.0, step: 0.01 },
+                { key: 'fAntiRollBarBiasFront', type: 'float', min: 0.0, max: 1.0, step: 0.01 },
+                { key: 'fRollCentreHeightFront', type: 'float', min: -0.5, max: 1.0, step: 0.01 },
+                { key: 'fRollCentreHeightRear', type: 'float', min: -0.5, max: 1.0, step: 0.01 }
             ]
         },
         {
@@ -451,9 +451,9 @@
             label: 'มวล & จุดศูนย์ถ่วง',
             fields: [
                 { type: 'divider', label: 'น้ำหนัก & อากาศพลศาสตร์ (Mass & Aero)' },
-                { key: 'fMass',              type: 'float', min: 100,  max: 10000, step: 10  },
-                { key: 'fInitialDragCoeff',  type: 'float', min: 0.1,  max: 200.0, step: 0.1 },
-                { key: 'fPercentSubmerged',  type: 'float', min: 10,   max: 100,   step: 1   },
+                { key: 'fMass', type: 'float', min: 100, max: 10000, step: 10 },
+                { key: 'fInitialDragCoeff', type: 'float', min: 0.1, max: 200.0, step: 0.1 },
+                { key: 'fPercentSubmerged', type: 'float', min: 10, max: 100, step: 1 },
                 { type: 'divider', label: 'จุดศูนย์ถ่วง (Centre of Mass Offset)' },
                 { key: 'vecCentreOfMassOffset.x', field: 'vecCentreOfMassOffset', axis: 'x', type: 'vector', min: -5.0, max: 5.0, step: 0.01 },
                 { key: 'vecCentreOfMassOffset.y', field: 'vecCentreOfMassOffset', axis: 'y', type: 'vector', min: -5.0, max: 5.0, step: 0.01 },
@@ -469,17 +469,17 @@
             label: 'ความเสียหาย & ของเหลว',
             fields: [
                 { type: 'divider', label: 'ตัวคูณความเสียหาย (Damage Multipliers)' },
-                { key: 'fCollisionDamageMult',    type: 'float', min: 0.0, max: 10.0,  step: 0.01 },
-                { key: 'fWeaponDamageMult',       type: 'float', min: 0.0, max: 10.0,  step: 0.01 },
-                { key: 'fDeformationDamageMult',  type: 'float', min: 0.0, max: 10.0,  step: 0.01 },
-                { key: 'fEngineDamageMult',       type: 'float', min: 0.0, max: 10.0,  step: 0.01 },
+                { key: 'fCollisionDamageMult', type: 'float', min: 0.0, max: 10.0, step: 0.01 },
+                { key: 'fWeaponDamageMult', type: 'float', min: 0.0, max: 10.0, step: 0.01 },
+                { key: 'fDeformationDamageMult', type: 'float', min: 0.0, max: 10.0, step: 0.01 },
+                { key: 'fEngineDamageMult', type: 'float', min: 0.0, max: 10.0, step: 0.01 },
                 { type: 'divider', label: 'ของเหลว & ถังน้ำมัน (Fluids)' },
-                { key: 'fPetrolTankVolume',       type: 'float', min: 0.0, max: 200.0, step: 1.0  },
-                { key: 'fOilVolume',              type: 'float', min: 0.0, max: 20.0,  step: 0.1  },
+                { key: 'fPetrolTankVolume', type: 'float', min: 0.0, max: 200.0, step: 1.0 },
+                { key: 'fOilVolume', type: 'float', min: 0.0, max: 20.0, step: 0.1 },
                 { type: 'divider', label: 'ตำแหน่งเบาะนั่ง (Seat Offsets)' },
-                { key: 'fSeatOffsetDistX',        type: 'float', min: -1.0, max: 1.0, step: 0.01 },
-                { key: 'fSeatOffsetDistY',        type: 'float', min: -1.0, max: 1.0, step: 0.01 },
-                { key: 'fSeatOffsetDistZ',        type: 'float', min: -1.0, max: 1.0, step: 0.01 }
+                { key: 'fSeatOffsetDistX', type: 'float', min: -1.0, max: 1.0, step: 0.01 },
+                { key: 'fSeatOffsetDistY', type: 'float', min: -1.0, max: 1.0, step: 0.01 },
+                { key: 'fSeatOffsetDistZ', type: 'float', min: -1.0, max: 1.0, step: 0.01 }
             ]
         },
         {
@@ -487,17 +487,17 @@
             label: 'ข้อมูลจำเพาะ & แฟล็ก',
             fields: [
                 { type: 'divider', label: 'ข้อมูลระบุตัวรถ & AI (Identifiers)' },
-                { key: 'handlingName',      type: 'text', placeholder: 'e.g. ELEGY', defaultVal: '' },
-                { key: 'AIHandling',        type: 'text', placeholder: 'AVERAGE',   defaultVal: 'AVERAGE' },
-                { key: 'nMonetaryValue',    type: 'int',  min: 0, max: 10000000, step: 100 },
+                { key: 'handlingName', type: 'text', placeholder: 'e.g. ELEGY', defaultVal: '' },
+                { key: 'AIHandling', type: 'text', placeholder: 'AVERAGE', defaultVal: 'AVERAGE' },
+                { key: 'nMonetaryValue', type: 'int', min: 0, max: 10000000, step: 100 },
                 { type: 'divider', label: 'แฟล็กคุณลักษณะ (Flags - รหัส Hex)' },
-                { key: 'strModelFlags',     type: 'text', placeholder: '440010',   defaultVal: '0' },
-                { key: 'strHandlingFlags',  type: 'text', placeholder: '20002',    defaultVal: '0' },
-                { key: 'strDamageFlags',    type: 'text', placeholder: '0',        defaultVal: '0' },
+                { key: 'strModelFlags', type: 'text', placeholder: '440010', defaultVal: '0' },
+                { key: 'strHandlingFlags', type: 'text', placeholder: '20002', defaultVal: '0' },
+                { key: 'strDamageFlags', type: 'text', placeholder: '0', defaultVal: '0' },
                 { type: 'divider', label: 'ข้อมูลเสริม CCarHandlingData (SubHandlingData)' },
-                { key: 'fBackEndPopUpCarImpulseMult',      type: 'subfloat', min: 0.0, max: 2.0, step: 0.001 },
+                { key: 'fBackEndPopUpCarImpulseMult', type: 'subfloat', min: 0.0, max: 2.0, step: 0.001 },
                 { key: 'fBackEndPopUpBuildingImpulseMult', type: 'subfloat', min: 0.0, max: 2.0, step: 0.001 },
-                { key: 'fBackEndPopUpMaxDeltaSpeed',       type: 'subfloat', min: 0.0, max: 2.0, step: 0.001 }
+                { key: 'fBackEndPopUpMaxDeltaSpeed', type: 'subfloat', min: 0.0, max: 2.0, step: 0.001 }
             ]
         }
     ];
@@ -505,62 +505,62 @@
     // ── XML Export Order ─────────────────────────────────────────────────────
     // Defines the exact Rockstar ordering and output format for each field.
     const XML_ORDER = [
-        { key: 'handlingName',                     xmlType: 'text'     },
-        { key: 'fMass',                            xmlType: 'value'    },
-        { key: 'fInitialDragCoeff',                xmlType: 'value'    },
-        { key: 'fPercentSubmerged',                xmlType: 'value'    },
-        { key: 'vecCentreOfMassOffset',            xmlType: 'vector'   },
-        { key: 'vecInertiaMultiplier',             xmlType: 'vector'   },
-        { key: 'fDriveBiasFront',                  xmlType: 'value'    },
-        { key: 'nInitialDriveGears',               xmlType: 'intvalue' },
-        { key: 'fInitialDriveForce',               xmlType: 'value'    },
-        { key: 'fDriveInertia',                    xmlType: 'value'    },
-        { key: 'fClutchChangeRateScaleUpShift',    xmlType: 'value'    },
-        { key: 'fClutchChangeRateScaleDownShift',  xmlType: 'value'    },
-        { key: 'fInitialDriveMaxFlatVel',          xmlType: 'value'    },
-        { key: 'fBrakeForce',                      xmlType: 'value'    },
-        { key: 'fBrakeBiasFront',                  xmlType: 'value'    },
-        { key: 'fHandBrakeForce',                  xmlType: 'value'    },
-        { key: 'fSteeringLock',                    xmlType: 'value'    },
-        { key: 'fTractionCurveMax',                xmlType: 'value'    },
-        { key: 'fTractionCurveMin',                xmlType: 'value'    },
-        { key: 'fTractionCurveLateral',            xmlType: 'value'    },
-        { key: 'fTractionSpringDeltaMax',          xmlType: 'value'    },
-        { key: 'fLowSpeedTractionLossMult',        xmlType: 'value'    },
-        { key: 'fCamberStiffnesss',                xmlType: 'value'    },
-        { key: 'fTractionBiasFront',               xmlType: 'value'    },
-        { key: 'fTractionLossMult',                xmlType: 'value'    },
-        { key: 'fSuspensionForce',                 xmlType: 'value'    },
-        { key: 'fSuspensionCompDamp',              xmlType: 'value'    },
-        { key: 'fSuspensionReboundDamp',           xmlType: 'value'    },
-        { key: 'fSuspensionUpperLimit',            xmlType: 'value'    },
-        { key: 'fSuspensionLowerLimit',            xmlType: 'value'    },
-        { key: 'fSuspensionRaise',                 xmlType: 'value'    },
-        { key: 'fSuspensionBiasFront',             xmlType: 'value'    },
-        { key: 'fAntiRollBarForce',                xmlType: 'value'    },
-        { key: 'fAntiRollBarBiasFront',            xmlType: 'value'    },
-        { key: 'fRollCentreHeightFront',           xmlType: 'value'    },
-        { key: 'fRollCentreHeightRear',            xmlType: 'value'    },
-        { key: 'fCollisionDamageMult',             xmlType: 'value'    },
-        { key: 'fWeaponDamageMult',                xmlType: 'value'    },
-        { key: 'fDeformationDamageMult',           xmlType: 'value'    },
-        { key: 'fEngineDamageMult',                xmlType: 'value'    },
-        { key: 'fPetrolTankVolume',                xmlType: 'value'    },
-        { key: 'fOilVolume',                       xmlType: 'value'    },
-        { key: 'fSeatOffsetDistX',                 xmlType: 'value'    },
-        { key: 'fSeatOffsetDistY',                 xmlType: 'value'    },
-        { key: 'fSeatOffsetDistZ',                 xmlType: 'value'    },
-        { key: 'nMonetaryValue',                   xmlType: 'intvalue' },
-        { key: 'strModelFlags',                    xmlType: 'text'     },
-        { key: 'strHandlingFlags',                 xmlType: 'text'     },
-        { key: 'strDamageFlags',                   xmlType: 'text'     },
-        { key: 'AIHandling',                       xmlType: 'text'     }
+        { key: 'handlingName', xmlType: 'text' },
+        { key: 'fMass', xmlType: 'value' },
+        { key: 'fInitialDragCoeff', xmlType: 'value' },
+        { key: 'fPercentSubmerged', xmlType: 'value' },
+        { key: 'vecCentreOfMassOffset', xmlType: 'vector' },
+        { key: 'vecInertiaMultiplier', xmlType: 'vector' },
+        { key: 'fDriveBiasFront', xmlType: 'value' },
+        { key: 'nInitialDriveGears', xmlType: 'intvalue' },
+        { key: 'fInitialDriveForce', xmlType: 'value' },
+        { key: 'fDriveInertia', xmlType: 'value' },
+        { key: 'fClutchChangeRateScaleUpShift', xmlType: 'value' },
+        { key: 'fClutchChangeRateScaleDownShift', xmlType: 'value' },
+        { key: 'fInitialDriveMaxFlatVel', xmlType: 'value' },
+        { key: 'fBrakeForce', xmlType: 'value' },
+        { key: 'fBrakeBiasFront', xmlType: 'value' },
+        { key: 'fHandBrakeForce', xmlType: 'value' },
+        { key: 'fSteeringLock', xmlType: 'value' },
+        { key: 'fTractionCurveMax', xmlType: 'value' },
+        { key: 'fTractionCurveMin', xmlType: 'value' },
+        { key: 'fTractionCurveLateral', xmlType: 'value' },
+        { key: 'fTractionSpringDeltaMax', xmlType: 'value' },
+        { key: 'fLowSpeedTractionLossMult', xmlType: 'value' },
+        { key: 'fCamberStiffnesss', xmlType: 'value' },
+        { key: 'fTractionBiasFront', xmlType: 'value' },
+        { key: 'fTractionLossMult', xmlType: 'value' },
+        { key: 'fSuspensionForce', xmlType: 'value' },
+        { key: 'fSuspensionCompDamp', xmlType: 'value' },
+        { key: 'fSuspensionReboundDamp', xmlType: 'value' },
+        { key: 'fSuspensionUpperLimit', xmlType: 'value' },
+        { key: 'fSuspensionLowerLimit', xmlType: 'value' },
+        { key: 'fSuspensionRaise', xmlType: 'value' },
+        { key: 'fSuspensionBiasFront', xmlType: 'value' },
+        { key: 'fAntiRollBarForce', xmlType: 'value' },
+        { key: 'fAntiRollBarBiasFront', xmlType: 'value' },
+        { key: 'fRollCentreHeightFront', xmlType: 'value' },
+        { key: 'fRollCentreHeightRear', xmlType: 'value' },
+        { key: 'fCollisionDamageMult', xmlType: 'value' },
+        { key: 'fWeaponDamageMult', xmlType: 'value' },
+        { key: 'fDeformationDamageMult', xmlType: 'value' },
+        { key: 'fEngineDamageMult', xmlType: 'value' },
+        { key: 'fPetrolTankVolume', xmlType: 'value' },
+        { key: 'fOilVolume', xmlType: 'value' },
+        { key: 'fSeatOffsetDistX', xmlType: 'value' },
+        { key: 'fSeatOffsetDistY', xmlType: 'value' },
+        { key: 'fSeatOffsetDistZ', xmlType: 'value' },
+        { key: 'nMonetaryValue', xmlType: 'intvalue' },
+        { key: 'strModelFlags', xmlType: 'text' },
+        { key: 'strHandlingFlags', xmlType: 'text' },
+        { key: 'strDamageFlags', xmlType: 'text' },
+        { key: 'AIHandling', xmlType: 'text' }
     ];
 
     const SUB_HANDLING_XML = [
-        { key: 'fBackEndPopUpCarImpulseMult',      xmlType: 'value' },
+        { key: 'fBackEndPopUpCarImpulseMult', xmlType: 'value' },
         { key: 'fBackEndPopUpBuildingImpulseMult', xmlType: 'value' },
-        { key: 'fBackEndPopUpMaxDeltaSpeed',       xmlType: 'value' }
+        { key: 'fBackEndPopUpMaxDeltaSpeed', xmlType: 'value' }
     ];
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -573,23 +573,23 @@
     //  DOM REFERENCES
     // ─────────────────────────────────────────────────────────────────────────
 
-    const container     = document.getElementById('tuner-container');
-    const tabNav        = document.getElementById('tab-nav');
-    const tabContent    = document.getElementById('tab-content');
-    const btnCopy       = document.getElementById('btn-copy-xml');
-    const btnCopyLbl    = document.getElementById('btn-copy-label');
-    const btnClose      = document.getElementById('btn-close');
-    const toastEl       = document.getElementById('toast');
+    const container = document.getElementById('tuner-container');
+    const tabNav = document.getElementById('tab-nav');
+    const tabContent = document.getElementById('tab-content');
+    const btnCopy = document.getElementById('btn-copy-xml');
+    const btnCopyLbl = document.getElementById('btn-copy-label');
+    const btnClose = document.getElementById('btn-close');
+    const toastEl = document.getElementById('toast');
 
     // Tooltip DOM elements
-    const tooltipEl     = document.getElementById('tuner-tooltip');
-    const tooltipTitle  = document.getElementById('tooltip-title');
-    const tooltipTag    = document.getElementById('tooltip-tag');
-    const tooltipDesc   = document.getElementById('tooltip-desc');
-    const tooltipUpRow  = document.getElementById('tooltip-up-row');
-    const tooltipUpTxt  = document.getElementById('tooltip-up-text');
-    const tooltipDnRow  = document.getElementById('tooltip-down-row');
-    const tooltipDnTxt  = document.getElementById('tooltip-down-text');
+    const tooltipEl = document.getElementById('tuner-tooltip');
+    const tooltipTitle = document.getElementById('tooltip-title');
+    const tooltipTag = document.getElementById('tooltip-tag');
+    const tooltipDesc = document.getElementById('tooltip-desc');
+    const tooltipUpRow = document.getElementById('tooltip-up-row');
+    const tooltipUpTxt = document.getElementById('tooltip-up-text');
+    const tooltipDnRow = document.getElementById('tooltip-down-row');
+    const tooltipDnTxt = document.getElementById('tooltip-down-text');
 
     // ─────────────────────────────────────────────────────────────────────────
     //  HELPERS
@@ -605,7 +605,7 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
             body: JSON.stringify(body)
-        }).catch(() => {});
+        }).catch(() => { });
     }
 
     /** Number of decimal places implied by a step value. */
@@ -639,19 +639,19 @@
         if (!dict || !tooltipEl) return;
 
         tooltipTitle.textContent = dict.label;
-        tooltipTag.textContent   = key;
-        tooltipDesc.textContent  = dict.desc || '';
+        tooltipTag.textContent = key;
+        tooltipDesc.textContent = dict.desc || '';
 
         if (dict.up) {
             tooltipUpRow.style.display = 'flex';
-            tooltipUpTxt.textContent   = dict.up;
+            tooltipUpTxt.textContent = dict.up;
         } else {
             tooltipUpRow.style.display = 'none';
         }
 
         if (dict.down) {
             tooltipDnRow.style.display = 'flex';
-            tooltipDnTxt.textContent   = dict.down;
+            tooltipDnTxt.textContent = dict.down;
         } else {
             tooltipDnRow.style.display = 'none';
         }
@@ -659,7 +659,7 @@
         // Positioning logic: prefer placing to the left of the tuner panel
         const rect = anchorEl.getBoundingClientRect();
         const tipWidth = 320;
-        
+
         let left = rect.left - tipWidth - 14;
         if (left < 16) {
             // If near the left edge, position on the right of the anchor or clamp
@@ -676,7 +676,7 @@
         if (top < 16) top = 16;
 
         tooltipEl.style.left = `${Math.round(left)}px`;
-        tooltipEl.style.top  = `${Math.round(top)}px`;
+        tooltipEl.style.top = `${Math.round(top)}px`;
         tooltipEl.classList.add('visible');
     }
 
@@ -709,7 +709,7 @@
             `data-key="${f.key}"`,
             `data-type="${f.type}"`,
             f.field ? `data-field="${f.field}"` : '',
-            f.axis  ? `data-axis="${f.axis}"`   : ''
+            f.axis ? `data-axis="${f.axis}"` : ''
         ].filter(Boolean).join(' ');
 
         if (f.type === 'text') {
@@ -773,10 +773,10 @@
 
         // Wire field interactions
         tabContent.querySelectorAll('.field-card').forEach(card => {
-            const key    = card.dataset.key;
+            const key = card.dataset.key;
             const slider = card.querySelector('.field-slider');
-            const num    = card.querySelector('.field-number');
-            const text   = card.querySelector('.field-text');
+            const num = card.querySelector('.field-number');
+            const text = card.querySelector('.field-text');
 
             // Initialise state from the default DOM value
             if (slider && num) {
@@ -841,32 +841,32 @@
 
     /** Posts a handling update to Lua for the given field card. */
     function sendUpdate(card) {
-        const type  = card.dataset.type;
-        const key   = card.dataset.key;
-        const val   = state[key];
+        const type = card.dataset.type;
+        const key = card.dataset.key;
+        const val = state[key];
 
         if (type === 'vector') {
             nuiPost('updateHandling', {
-                type:  'vector',
+                type: 'vector',
                 field: card.dataset.field,
-                axis:  card.dataset.axis,
+                axis: card.dataset.axis,
                 value: val
             });
         } else if (type === 'subfloat') {
             nuiPost('updateHandling', {
-                type:  'subfloat',
+                type: 'subfloat',
                 field: key,
                 value: val
             });
         } else if (type === 'int') {
             nuiPost('updateHandling', {
-                type:  'int',
+                type: 'int',
                 field: key,
                 value: parseInt(val, 10)
             });
         } else if (type === 'float') {
             nuiPost('updateHandling', {
-                type:  'float',
+                type: 'float',
                 field: key,
                 value: parseFloat(val)
             });
@@ -887,14 +887,14 @@
             if (!card) continue;
 
             const slider = card.querySelector('.field-slider');
-            const num    = card.querySelector('.field-number');
-            const text   = card.querySelector('.field-text');
+            const num = card.querySelector('.field-number');
+            const text = card.querySelector('.field-text');
 
             if (slider && num) {
                 const step = parseFloat(slider.step) || 0.01;
                 const rounded = roundToStep(val, step);
                 slider.value = rounded;
-                num.value    = rounded;
+                num.value = rounded;
             } else if (text) {
                 text.value = val;
             }
