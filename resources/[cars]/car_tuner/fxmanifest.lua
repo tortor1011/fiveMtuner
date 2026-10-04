@@ -2,8 +2,8 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'car_tuner'
-description 'Comprehensive vehicle handling editor with real-time tuning and XML export'
-version '2.0.0'
+description 'Comprehensive vehicle handling editor with draft-and-commit tuning and state bag sync'
+version '2.1.0'
 
 ui_page 'html/index.html'
 
@@ -15,4 +15,8 @@ files {
 
 client_scripts {
     'client/client.lua'
+}
+
+server_scripts {
+    'server/server.lua'
 }

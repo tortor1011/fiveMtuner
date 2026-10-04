@@ -172,66 +172,115 @@ RegisterCommand('tune', function()
     OpenTunerUI(veh)
 end, false)
 
--- ── NUI Callback: updateHandling ─────────────────────────────────────────────
--- Receives { type, field, value [, axis] } and dispatches to the correct
--- native setter based on the declared field type.
+-- ── Apply Handling Data Helper ──────────────────────────────────────────────
+--- Iterates over provided tuningData and applies all float, int, vector, and subfloat values to the vehicle entity.
+--- @param veh number        Vehicle entity handle
+--- @param tuningData table  Key-value map of handling attributes
+local function ApplyHandlingData(veh, tuningData)
+    if not veh or not DoesEntityExist(veh) or not tuningData then return end
 
-RegisterNUICallback('updateHandling', function(data, cb)
-    if not currentVehicle or not DoesEntityExist(currentVehicle) then
-        cb('error')
-        return
-    end
-
-    local ftype = data.type
-    local field = data.field
-    local raw   = data.value
-
-    if not field then
-        cb('error')
-        return
-    end
-
-    if ftype == 'float' then
-        local val = tonumber(raw)
-        if val then
-            SetVehicleHandlingFloat(currentVehicle, 'CHandlingData', field, val + 0.0)
-        end
-
-    elseif ftype == 'int' then
-        local val = tonumber(raw)
-        if val then
-            SetVehicleHandlingInt(currentVehicle, 'CHandlingData', field, math.floor(val))
-        end
-
-    elseif ftype == 'vector' then
-        local axis = data.axis
-        local val  = tonumber(raw)
-        if val and axis then
-            local cur = GetVehicleHandlingVector(currentVehicle, 'CHandlingData', field)
-            local x, y, z = cur.x, cur.y, cur.z
-            if     axis == 'x' then x = val + 0.0
-            elseif axis == 'y' then y = val + 0.0
-            elseif axis == 'z' then z = val + 0.0
+    -- Float fields
+    for _, f in ipairs(FLOAT_FIELDS) do
+        if tuningData[f] ~= nil then
+            local val = tonumber(tuningData[f])
+            if val then
+                SetVehicleHandlingFloat(veh, 'CHandlingData', f, val + 0.0)
             end
-            SetVehicleHandlingVector(currentVehicle, 'CHandlingData', field, vector3(x, y, z))
-        end
-
-    elseif ftype == 'subfloat' then
-        local val = tonumber(raw)
-        if val then
-            SetVehicleHandlingFloat(currentVehicle, 'CCarHandlingData', field, val + 0.0)
         end
     end
-    -- 'text' type fields are UI-only for XML export — no runtime native exists.
 
-    -- Force an immediate physics recalculation
-    SetVehicleEnginePowerMultiplier(currentVehicle, 1.0)
-    ModifyVehicleTopSpeed(currentVehicle, 0.0)
+    -- Int fields
+    for _, f in ipairs(INT_FIELDS) do
+        if tuningData[f] ~= nil then
+            local val = tonumber(tuningData[f])
+            if val then
+                SetVehicleHandlingInt(veh, 'CHandlingData', f, math.floor(val))
+            end
+        end
+    end
 
+    -- Vector fields
+    for _, f in ipairs(VECTOR_FIELDS) do
+        local ok, cur = pcall(GetVehicleHandlingVector, veh, 'CHandlingData', f)
+        if ok and cur then
+            local x = tonumber(tuningData[f .. '.x']) or cur.x
+            local y = tonumber(tuningData[f .. '.y']) or cur.y
+            local z = tonumber(tuningData[f .. '.z']) or cur.z
+            SetVehicleHandlingVector(veh, 'CHandlingData', f, vector3(x + 0.0, y + 0.0, z + 0.0))
+        end
+    end
+
+    -- Sub-handler floats (CCarHandlingData)
+    for _, f in ipairs(SUB_FLOAT_FIELDS) do
+        if tuningData[f] ~= nil then
+            local val = tonumber(tuningData[f])
+            if val then
+                SetVehicleHandlingFloat(veh, 'CCarHandlingData', f, val + 0.0)
+            end
+        end
+    end
+
+    -- Force immediate physics recalculation
+    SetVehicleEnginePowerMultiplier(veh, 1.0)
+    ModifyVehicleTopSpeed(veh, 0.0)
+end
+
+-- ── NUI Callback: saveHandling ───────────────────────────────────────────────
+-- Commits the player's draft tuning to the vehicle and syncs via State Bag.
+
+RegisterNUICallback('saveHandling', function(tuningData, cb)
+    local ped = PlayerPedId()
+    local veh = GetVehiclePedIsIn(ped, false)
+
+    if (veh == 0 or not DoesEntityExist(veh)) and currentVehicle and DoesEntityExist(currentVehicle) then
+        veh = currentVehicle
+    end
+
+    if veh == 0 or not DoesEntityExist(veh) then
+        Notify('ไม่พบยานพาหนะที่จะบันทึกค่า (Vehicle not found)')
+        cb('error')
+        return
+    end
+
+    -- Store tuning inside vehicle State Bag (replicated across network)
+    Entity(veh).state:set('customTuning', tuningData, true)
+
+    -- Trigger server event to persist and broadcast
+    local netId = VehToNet(veh)
+    if netId and netId ~= 0 then
+        TriggerServerEvent('car_tuner:saveTuning', netId, tuningData)
+    end
+
+    -- Apply physical handling attributes immediately to local vehicle
+    ApplyHandlingData(veh, tuningData)
+
+    Notify('บันทึกค่าจูนสำเร็จ! ปรับแต่งสมรรถนะรถเรียบร้อยแล้ว')
     cb('ok')
 end)
 
+-- ── State Bag & Network Sync ─────────────────────────────────────────────────
+
+-- When customTuning state bag is set on any vehicle, apply handling physics
+AddStateBagChangeHandler('customTuning', nil, function(bagName, key, value, _unused, replicated)
+    if not value then return end
+    local entity = GetEntityFromStateBagName(bagName)
+    if entity and entity ~= 0 and DoesEntityExist(entity) and GetEntityType(entity) == 2 then
+        ApplyHandlingData(entity, value)
+    end
+end)
+
+-- Server broadcast receiver
+RegisterNetEvent('car_tuner:clientApplyTuning', function(netId, tuningData)
+    if NetworkDoesNetworkIdExist(netId) then
+        local veh = NetToVeh(netId)
+        if veh and DoesEntityExist(veh) then
+            ApplyHandlingData(veh, tuningData)
+        end
+    end
+end)
+
 -- ── NUI Callback: closeUI ────────────────────────────────────────────────────
+-- Closes NUI focus. Unsaved draft changes remain discarded without altering vehicle physics.
 
 RegisterNUICallback('closeUI', function(_, cb)
     SetNuiFocus(false, false)

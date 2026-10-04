@@ -624,6 +624,7 @@ body {
     transform: translateY(0);
 }
 
+.btn-primary.saved,
 .btn-primary.copied {
     background: linear-gradient(135deg, var(--success) 0%, #10b981 100%);
     color: #0c1222;
