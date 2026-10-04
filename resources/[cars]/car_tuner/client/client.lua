@@ -2,15 +2,21 @@
     car_tuner/client/client.lua
     Comprehensive vehicle handling editor — client-side logic.
 
-    Enhanced for Add-on / Custom Mod Vehicles & Base GTA V Vehicles:
+    Features:
     - Safe property fetching with sports-class baselines preventing 0.00 / NaN bugs.
     - Automatic SetVehicleModKit(veh, 0) cache initialization.
     - Dual-Layer Tuning Engine: Native CHandlingData + Dynamic Engine Power & Top Speed Multipliers.
-    - Per-Vehicle State Bag synchronization & automatic persistence across vehicle entries.
+    - Per-Vehicle persistence by license plate via server-side memory table.
+    - Auto re-apply on vehicle entry: asks server for saved tuning by plate.
+    - UI opens with last-saved custom values (not stock) when plate has tuning data.
     - Vehicle identity retrieval (Display Name, Model, Number Plate).
 ]]
 
 local currentVehicle = nil
+
+-- Client-side cache of known tuned plates → tuningData.
+-- Populated on save, on vehicle entry response, and on full sync from server.
+local cachedTuning = {}
 
 -- ── Baseline Defaults for Add-on / Custom Mod Vehicles ───────────────────────
 local DEFAULT_BASELINE = {
@@ -176,6 +182,22 @@ local function IsNaN(val)
     return type(val) == 'number' and val ~= val
 end
 
+--- Trims whitespace from a plate string.
+--- @param raw string
+--- @return string
+local function CleanPlate(raw)
+    if not raw or raw == '' then return '' end
+    return string.gsub(raw, '^%s*(.-)%s*$', '%1')
+end
+
+--- Gets the cleaned plate from a vehicle entity.
+--- @param veh number
+--- @return string
+local function GetCleanPlate(veh)
+    if not veh or not DoesEntityExist(veh) then return '' end
+    return CleanPlate(GetVehicleNumberPlateText(veh) or '')
+end
+
 --- Safe handling float getter with custom fallback resolution.
 --- Prevents mod vehicles returning 0.0 or nil from corrupting tuner inputs.
 --- @param veh number
@@ -211,8 +233,7 @@ local function GetVehicleIdentity(veh)
         labelName = displayName
     end
 
-    local plate = GetVehicleNumberPlateText(veh) or ''
-    plate = string.gsub(plate, '^%s*(.-)%s*$', '%1') -- trim whitespace
+    local plate = GetCleanPlate(veh)
 
     return labelName, displayName, plate
 end
@@ -344,6 +365,7 @@ end
 -- ── Open Tuner UI ────────────────────────────────────────────────────────────
 
 --- Opens the NUI editor panel and sends the vehicle's current handling state.
+--- Prioritizes last-saved custom tuning values over stock handling snapshot.
 --- @param veh number
 local function OpenTunerUI(veh)
     if not veh or not DoesEntityExist(veh) then return end
@@ -354,8 +376,27 @@ local function OpenTunerUI(veh)
 
     SetNuiFocus(true, true)
 
-    local snapshot = GetHandlingSnapshot(veh)
     local vehLabel, vehModel, vehPlate = GetVehicleIdentity(veh)
+
+    -- Check if this plate has saved custom tuning data (local cache first)
+    local savedTuning = cachedTuning[vehPlate]
+
+    -- Also check entity State Bag as a secondary source
+    if not savedTuning then
+        local state = Entity(veh).state
+        if state and state.customTuning then
+            savedTuning = state.customTuning
+        end
+    end
+
+    local snapshot
+    if savedTuning then
+        -- Use the last-saved custom tuning as the baseline for the UI
+        snapshot = savedTuning
+    else
+        -- No saved tuning → read stock handling from the entity
+        snapshot = GetHandlingSnapshot(veh)
+    end
 
     SendNUIMessage({
         action      = 'open',
@@ -383,11 +424,23 @@ RegisterCommand('tune', function()
         return
     end
 
-    OpenTunerUI(veh)
+    -- Check if the server has tuning for this plate before opening UI
+    local plate = GetCleanPlate(veh)
+    if plate ~= '' and not cachedTuning[plate] then
+        -- Request from server; the response handler will open the UI
+        TriggerServerEvent('car_tuner:server:getTuningByPlate', plate)
+        -- Small wait for server response to arrive before opening UI
+        Citizen.SetTimeout(150, function()
+            if currentVehicle then return end -- Already opened by response handler
+            OpenTunerUI(veh)
+        end)
+    else
+        OpenTunerUI(veh)
+    end
 end, false)
 
 -- ── NUI Callback: saveHandling ───────────────────────────────────────────────
--- Commits the player's draft tuning to the vehicle and syncs via State Bag.
+-- Commits the player's draft tuning to the vehicle and syncs via State Bag + plate.
 
 RegisterNUICallback('saveHandling', function(tuningData, cb)
     local ped = PlayerPedId()
@@ -412,13 +465,21 @@ RegisterNUICallback('saveHandling', function(tuningData, cb)
     tuningData._powerMultiplier = powerMult
     tuningData._topSpeedMultiplier = speedMult
 
+    -- Get plate for persistence
+    local plate = GetCleanPlate(veh)
+
+    -- Cache locally by plate
+    if plate ~= '' then
+        cachedTuning[plate] = tuningData
+    end
+
     -- Store tuning inside vehicle State Bag (replicated across network)
     Entity(veh).state:set('customTuning', tuningData, true)
 
-    -- Trigger server event to persist and broadcast
+    -- Trigger server event to persist by plate and broadcast
     local netId = VehToNet(veh)
     if netId and netId ~= 0 then
-        TriggerServerEvent('car_tuner:saveTuning', netId, tuningData)
+        TriggerServerEvent('car_tuner:saveTuning', netId, tuningData, plate)
     end
 
     -- Apply physical handling attributes immediately to local vehicle
@@ -429,7 +490,71 @@ RegisterNUICallback('saveHandling', function(tuningData, cb)
     cb('ok')
 end)
 
--- ── State Bag & Network Synchronization ─────────────────────────────────────
+-- ══════════════════════════════════════════════════════════════════════════════
+--  SERVER RESPONSE HANDLERS & SYNCHRONIZATION
+-- ══════════════════════════════════════════════════════════════════════════════
+
+-- ── Receive Tuning By Plate (Response from server callback) ──────────────────
+-- Called after we asked the server for saved tuning data for a specific plate.
+-- If data exists, cache it locally and apply to the current vehicle.
+
+RegisterNetEvent('car_tuner:client:receiveTuningByPlate', function(plate, tuningData)
+    if not plate or plate == '' then return end
+
+    if tuningData then
+        -- Cache locally
+        cachedTuning[plate] = tuningData
+
+        -- If the player is currently in a vehicle with this plate, apply immediately
+        local ped = PlayerPedId()
+        if IsPedInAnyVehicle(ped, false) then
+            local veh = GetVehiclePedIsIn(ped, false)
+            if veh ~= 0 and DoesEntityExist(veh) then
+                local vehPlate = GetCleanPlate(veh)
+                if vehPlate == plate then
+                    ApplyHandlingData(veh, tuningData)
+                    Entity(veh).state:set('customTuning', tuningData, true)
+
+                    -- If UI was waiting to open (from /tune command), open it now with saved data
+                    if not currentVehicle then
+                        OpenTunerUI(veh)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- ── Receive Full Sync on Join ────────────────────────────────────────────────
+-- When the player joins the server, the server sends all known tuned plates.
+-- Cache them locally so future vehicle entries can apply instantly.
+
+RegisterNetEvent('car_tuner:client:syncAllTuning', function(allTuning)
+    if not allTuning then return end
+    for plate, data in pairs(allTuning) do
+        cachedTuning[plate] = data
+    end
+end)
+
+-- ── Network Broadcast: Another Player Saved Tuning ───────────────────────────
+-- When any player saves tuning, the server broadcasts to all clients.
+
+RegisterNetEvent('car_tuner:clientApplyTuning', function(netId, tuningData)
+    if NetworkDoesNetworkIdExist(netId) then
+        local veh = NetToVeh(netId)
+        if veh and DoesEntityExist(veh) then
+            ApplyHandlingData(veh, tuningData)
+
+            -- Also update local plate cache
+            local plate = GetCleanPlate(veh)
+            if plate ~= '' and tuningData then
+                cachedTuning[plate] = tuningData
+            end
+        end
+    end
+end)
+
+-- ── State Bag Change Handler ─────────────────────────────────────────────────
 
 AddStateBagChangeHandler('customTuning', nil, function(bagName, key, value, _unused, replicated)
     if not value then return end
@@ -439,32 +564,64 @@ AddStateBagChangeHandler('customTuning', nil, function(bagName, key, value, _unu
     end
 end)
 
-RegisterNetEvent('car_tuner:clientApplyTuning', function(netId, tuningData)
-    if NetworkDoesNetworkIdExist(netId) then
-        local veh = NetToVeh(netId)
-        if veh and DoesEntityExist(veh) then
-            ApplyHandlingData(veh, tuningData)
-        end
-    end
-end)
+-- ══════════════════════════════════════════════════════════════════════════════
+--  VEHICLE ENTRY HOOKS — AUTO RE-APPLY ON ENTER
+-- ══════════════════════════════════════════════════════════════════════════════
 
--- ── Auto Re-Apply on Vehicle Entry (Persistence Across Sessions) ────────────
+-- ── Game Event: Player Entered Vehicle ───────────────────────────────────────
+-- When the local player sits in a vehicle, check:
+--   1. State Bag (fastest, already on entity)
+--   2. Local plate cache
+--   3. Ask server for plate data (network fallback)
+-- Then apply handling + multipliers immediately.
 
 AddEventHandler('gameEventTriggered', function(name, args)
-    if name == 'CEventNetworkPlayerEnteredVehicle' then
-        local ped = args[1]
-        local veh = args[2]
-        if ped == PlayerPedId() and veh and DoesEntityExist(veh) then
-            local state = Entity(veh).state
-            if state and state.customTuning then
-                ApplyHandlingData(veh, state.customTuning)
+    if name ~= 'CEventNetworkPlayerEnteredVehicle' then return end
+
+    local ped = args[1]
+    if ped ~= PlayerPedId() then return end
+
+    local veh = args[2]
+    if not veh or not DoesEntityExist(veh) then return end
+
+    -- Small delay to let GTA finish resetting physics after seat change
+    Citizen.SetTimeout(200, function()
+        if not veh or not DoesEntityExist(veh) then return end
+
+        local plate = GetCleanPlate(veh)
+        local tuningData = nil
+
+        -- Priority 1: Entity State Bag
+        local state = Entity(veh).state
+        if state and state.customTuning then
+            tuningData = state.customTuning
+        end
+
+        -- Priority 2: Local plate cache
+        if not tuningData and plate ~= '' and cachedTuning[plate] then
+            tuningData = cachedTuning[plate]
+        end
+
+        if tuningData then
+            -- Re-apply everything: handling floats + dual-layer multipliers
+            ApplyHandlingData(veh, tuningData)
+            -- Ensure State Bag is also set (in case it was lost)
+            if not (state and state.customTuning) then
+                Entity(veh).state:set('customTuning', tuningData, true)
+            end
+        else
+            -- Priority 3: Ask server if this plate has saved tuning
+            if plate ~= '' then
+                TriggerServerEvent('car_tuner:server:getTuningByPlate', plate)
             end
         end
-    end
+    end)
 end)
 
 -- ── Dynamic Multiplier Maintenance Thread ────────────────────────────────────
--- Keeps engine power multiplier and top speed multiplier active during driving
+-- Keeps engine power multiplier and top speed multiplier active during driving.
+-- GTA V can reset these multipliers during gear changes, collisions, or respawns.
+
 CreateThread(function()
     while true do
         local sleep = 1000
@@ -472,12 +629,30 @@ CreateThread(function()
         if IsPedInAnyVehicle(ped, false) then
             local veh = GetVehiclePedIsIn(ped, false)
             if veh ~= 0 and DoesEntityExist(veh) and GetPedInVehicleSeat(veh, -1) == ped then
+                local tuning = nil
+
+                -- Check State Bag first
                 local state = Entity(veh).state
                 if state and state.customTuning then
+                    tuning = state.customTuning
+                end
+
+                -- Fallback to plate cache
+                if not tuning then
+                    local plate = GetCleanPlate(veh)
+                    if plate ~= '' and cachedTuning[plate] then
+                        tuning = cachedTuning[plate]
+                    end
+                end
+
+                if tuning then
                     sleep = 500
-                    local tuning = state.customTuning
-                    local pMult = tuning._powerMultiplier or (tuning.fInitialDriveForce and (tonumber(tuning.fInitialDriveForce) / 0.30)) or 1.0
-                    local sMult = tuning._topSpeedMultiplier or (tuning.fInitialDriveMaxFlatVel and (tonumber(tuning.fInitialDriveMaxFlatVel) / 150.0)) or 1.0
+                    local pMult = tuning._powerMultiplier
+                        or (tuning.fInitialDriveForce and math.max(0.1, tonumber(tuning.fInitialDriveForce) / 0.30))
+                        or 1.0
+                    local sMult = tuning._topSpeedMultiplier
+                        or (tuning.fInitialDriveMaxFlatVel and math.max(0.1, tonumber(tuning.fInitialDriveMaxFlatVel) / 150.0))
+                        or 1.0
                     SetVehicleEnginePowerMultiplier(veh, pMult + 0.0)
                     ModifyVehicleTopSpeed(veh, sMult + 0.0)
                 end
@@ -486,6 +661,8 @@ CreateThread(function()
         Wait(sleep)
     end
 end)
+
+-- ── Close UI Callback ────────────────────────────────────────────────────────
 
 RegisterNUICallback('closeUI', function(_, cb)
     SetNuiFocus(false, false)
